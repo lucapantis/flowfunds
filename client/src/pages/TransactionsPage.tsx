@@ -2,6 +2,8 @@ import {useState, type FormEventHandler } from "react";
 import {mockTransactions} from "../data/mockTransactions";
 import type {Transaction, TransactionType} from "../types/transaction";
 
+type TypeFilter ="all" | TransactionType;
+
 export function TransactionsPage() {
     const [transactions, setTransactions] = useState(mockTransactions);
     const [description, setDescription] = useState("");
@@ -10,6 +12,9 @@ export function TransactionsPage() {
     const [type, setType] = useState<TransactionType>("expense");
     const [category, setCategory] = useState("");
     const [error, setError] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+
 
     const handleDelete = (id: string) => {
         setTransactions((currentTransactions) =>
@@ -54,9 +59,46 @@ export function TransactionsPage() {
 
 
     }
+   const filteredTransactions = transactions.filter((transaction) => {
+       const normalizedSearchTerm = searchTerm.toLowerCase();
+
+           const matchesSearch =
+           transaction.description.toLowerCase().includes(normalizedSearchTerm) ||
+           transaction.category.toLowerCase().includes(normalizedSearchTerm)
+
+       const matchesType =
+           typeFilter === "all" || transaction.type === typeFilter;
+
+           return matchesSearch && matchesType;
+
+   })
+
         return (
             <section>
                 <h2 className="text-2xl font-bold">Tranzacții</h2>
+
+                <div className="mt-5 flex flex-col gap-3 md:flex-row">
+                <div className="flex-1">
+                  <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      placeholder="Search by description or category"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  />
+                </div>
+                    <div className="flex-1">
+                        <select
+                            value={typeFilter}
+                            onChange={(event) => setTypeFilter(event.target.value as TypeFilter)}
+                            className="rounded-md border border-slate-300 px-3 py-2"
+                        >
+                            <option value="all">All</option>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                </div>
 
     <form onSubmit={handleSubmit}
           className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
@@ -181,8 +223,9 @@ export function TransactionsPage() {
                 <div className="mt-6 space-y-3">
                     {transactions.length === 0 ? (
                         <p>No transactions yet.</p>
-                    )
-                        :  (transactions.map((transaction) => (
+                    ) : filteredTransactions.length === 0 ? (
+                        <p>No transactions match your search.</p> )
+                        :  (filteredTransactions.map((transaction) => (
                         <article
                             key={transaction.id}
                             className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
