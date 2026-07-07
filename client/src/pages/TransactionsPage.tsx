@@ -14,6 +14,7 @@ export function TransactionsPage() {
     const [error, setError] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+    const [categoryFilter, setCategoryFilter] = useState("all");
 
 
     const handleDelete = (id: string) => {
@@ -24,6 +25,12 @@ export function TransactionsPage() {
         //   take the current list,
         //   return a new list that excludes the transaction whose id matches the clicked id
         // )
+    }
+
+    const handleClearFilters = () => {
+        setSearchTerm("");
+        setTypeFilter("all");
+        setCategory("all");
     }
 
     const handleSubmit: FormEventHandler = (event) => {
@@ -59,6 +66,12 @@ export function TransactionsPage() {
 
 
     }
+
+    const categories = [
+        ...new Set(transactions.map((transaction) => transaction.category)),
+    ];
+
+
    const filteredTransactions = transactions.filter((transaction) => {
        const normalizedSearchTerm = searchTerm.toLowerCase();
 
@@ -66,16 +79,18 @@ export function TransactionsPage() {
            transaction.description.toLowerCase().includes(normalizedSearchTerm) ||
            transaction.category.toLowerCase().includes(normalizedSearchTerm)
 
-       const matchesType =
-           typeFilter === "all" || transaction.type === typeFilter;
+            const matchesType =
+            typeFilter === "all" || transaction.type === typeFilter;
+       const matchesCategory =
+           categoryFilter === "all" || transaction.category === categoryFilter
 
-           return matchesSearch && matchesType;
+            return matchesSearch && matchesType && matchesCategory;
 
    })
 
         return (
             <section>
-                <h2 className="text-2xl font-bold">Tranzacții</h2>
+                <h2 className="text-2xl font-bold">Transactions</h2>
 
                 <div className="mt-5 flex flex-col gap-3 md:flex-row">
                 <div className="flex-1">
@@ -97,6 +112,26 @@ export function TransactionsPage() {
                             <option value="expense">Expense</option>
                             <option value="income">Income</option>
                         </select>
+                        <select
+                            value={categoryFilter}
+                            onChange={(event) => setCategoryFilter(event.target.value)}
+                            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+                        >
+                            <option value="all">All categories</option>
+
+                            {categories.map((category) => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}
+                        </select>
+                        <button
+                            type="button"
+                            onClick={handleClearFilters}
+                            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                        >
+                            Clear filters
+                        </button>
                     </div>
                 </div>
 
