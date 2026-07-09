@@ -28,19 +28,19 @@ export function DashboardPage() {
 
     const summaryCards = [
         {
-            label: "Venituri luna aceasta",
+            label: "Monthly Income",
             value: formatCurrency(totalIncome),
-            description: "Toate sursele de venit",
+            description: "Total income sources",
         },
         {
-            label: "Cheltuieli luna aceasta",
+            label: "Monthly Expenses",
             value: formatCurrency(totalExpenses),
-            description: "Tranzacții înregistrate",
+            description: "Tracked expenses",
         },
         {
-            label: "Sold disponibil",
+            label: "Available Balance",
             value: formatCurrency(balance),
-            description: "Venituri minus cheltuieli",
+            description: "Income minus expenses",
         },
     ];
 
@@ -48,14 +48,14 @@ export function DashboardPage() {
         <section>
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                    <p className="text-sm font-medium text-emerald-600">June 2026</p>
+                    <p className="text-sm font-medium text-emerald-600">July 2026</p>
 
                     <h2 className="mt-1 text-3xl font-bold tracking-tight">
-                        Situația financiară
+                        Financial Overview
                     </h2>
 
                     <p className="mt-2 text-slate-500">
-                        A quick look at your incomes and expenses.
+                        A quick look at your income and expenses, and available balance.
                     </p>
                 </div>
 
@@ -88,7 +88,7 @@ export function DashboardPage() {
                             <h3 className="font-bold">Recent Transactions</h3>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Last transactions.
+                                Your latest income and expenses.
                             </p>
                         </div>
                         <Link
@@ -147,15 +147,15 @@ export function DashboardPage() {
                 </section>
 
                 <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <h3 className="font-bold">Obiectivul lunii</h3>
+                    <h3 className="font-bold">Monthly Goal</h3>
 
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                        Păstrează cheltuielile sub 4.000 RON pentru luna iunie.
+                        Keep expenses under 4.000 RON this month.
                     </p>
 
                     <div className="mt-6">
                         <div className="mb-2 flex justify-between text-sm">
-                            <span className="font-medium">Cheltuit</span>
+                            <span className="font-medium">Spent</span>
 
                             <span className="text-slate-500">
                 {formatCurrency(totalExpenses)} / 4.000 RON
@@ -167,7 +167,7 @@ export function DashboardPage() {
                         </div>
 
                         <p className="mt-3 text-xs text-slate-500">
-                            Bugetele reale și procentul calculat dinamic le facem mai târziu.
+                            Dynamic budgets and progress tracking coming soon.
                         </p>
                     </div>
                 </aside>

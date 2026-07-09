@@ -3,7 +3,7 @@ import type { Transaction } from "../types/transaction.ts";
 export const mockTransactions: Transaction[] = [
     {
         id: "1",
-        description: "Salariu",
+        description: "Salary",
         category: "Salary",
         amount: 5200,
         type: "income",
@@ -19,7 +19,7 @@ export const mockTransactions: Transaction[] = [
     },
     {
         id: "3",
-        description: "Abonament internet",
+        description: "Internet",
         category: "Utilities",
         amount: 55,
         type: "expense",

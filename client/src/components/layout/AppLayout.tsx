@@ -4,8 +4,8 @@ import { NavLink, Outlet } from "react-router";
 
 const navigationItems = [
     { to: "/dashboard", label: "Dashboard", icon: "▦" },
-    { to: "/transactions", label: "Tranzacții", icon: "↕" },
-    { to: "/budgets", label: "Bugete", icon: "◎" },
+    { to: "/transactions", label: "Transactions", icon: "↕" },
+    { to: "/budgets", label: "Budgets", icon: "◎" },
 ];
 
 export function AppLayout() {
