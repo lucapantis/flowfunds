@@ -1,11 +1,23 @@
-import {useState, type FormEventHandler } from "react";
-import {mockTransactions} from "../data/mockTransactions";
+import { useOutletContext } from "react-router";
+import {
+    type Dispatch,
+    type FormEventHandler,
+    type SetStateAction,
+    useState,
+  } from "react";
 import type {Transaction, TransactionType} from "../types/transaction";
+
+
+type TransactionsContext = {
+    transactions: Transaction[];
+    setTransactions: Dispatch<SetStateAction<Transaction[]>>;
+};
 
 type TypeFilter ="all" | TransactionType;
 
 export function TransactionsPage() {
-    const [transactions, setTransactions] = useState(mockTransactions);
+    const { transactions, setTransactions } = useOutletContext<TransactionsContext>();
+
     const [description, setDescription] = useState("");
     const [amount, setAmount] = useState("");
     const [date, setDate] = useState("");

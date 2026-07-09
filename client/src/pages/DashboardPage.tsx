@@ -1,4 +1,5 @@
-import { mockTransactions } from "../data/mockTransactions";
+import { Link, useOutletContext } from "react-router";
+import { type Transaction} from "../types/transaction.ts";
 
 function formatCurrency(value: number) {
     return new Intl.NumberFormat("ro-RO", {
@@ -8,12 +9,18 @@ function formatCurrency(value: number) {
     }).format(value);
 }
 
+type DashboardContext = {
+    transactions: Transaction[];
+}
+
 export function DashboardPage() {
-    const totalIncome = mockTransactions
+ const { transactions } = useOutletContext<DashboardContext>();
+
+    const totalIncome = transactions
         .filter((transaction) => transaction.type === "income")
         .reduce((total, transaction) => total + transaction.amount, 0);
 
-    const totalExpenses = mockTransactions
+    const totalExpenses = transactions
         .filter((transaction) => transaction.type === "expense")
         .reduce((total, transaction) => total + transaction.amount, 0);
 
@@ -41,19 +48,19 @@ export function DashboardPage() {
         <section>
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                    <p className="text-sm font-medium text-emerald-600">Iunie 2026</p>
+                    <p className="text-sm font-medium text-emerald-600">June 2026</p>
 
                     <h2 className="mt-1 text-3xl font-bold tracking-tight">
                         Situația financiară
                     </h2>
 
                     <p className="mt-2 text-slate-500">
-                        O vedere rapidă asupra veniturilor și cheltuielilor tale.
+                        A quick look at your incomes and expenses.
                     </p>
                 </div>
 
                 <button className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
-                    + Adaugă tranzacție
+                    + Add transaction
                 </button>
             </div>
 
@@ -78,20 +85,22 @@ export function DashboardPage() {
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="font-bold">Tranzacții recente</h3>
+                            <h3 className="font-bold">Recent Transactions</h3>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Ultimele mișcări financiare.
+                                Last transactions.
                             </p>
                         </div>
-
-                        <span className="text-sm font-medium text-emerald-700">
-              Vezi toate
-            </span>
-                    </div>
+                        <Link
+                            to="/transactions"
+                            className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+                        >
+                         View all
+                        </Link>
+             </div>
 
                     <div className="mt-6 divide-y divide-slate-100">
-                        {mockTransactions.map((transaction) => {
+                        {transactions.map((transaction) => {
                             const isIncome = transaction.type === "income";
 
                             return (
