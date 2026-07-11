@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 
+import {transactions} from "./data/transactions.js";
+
 const app = express();  // creates the backend app
 const PORT = 3001;
 
@@ -13,6 +15,10 @@ app.get("/api/health", (req, res) => {
         status: "ok",
         message: "FlowFunds API is running",
     })
+})
+
+app.get("/api/transactions", (req, res) => {
+    res.json(transactions);
 })
 
 // // starts backend on port 3001
