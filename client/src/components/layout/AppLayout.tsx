@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { mockTransactions} from "../../data/mockTransactions.ts";
+import { useEffect, useState } from "react";
+import type { Transaction } from "../../types/transaction.ts";
 import { NavLink, Outlet } from "react-router";
 
 const navigationItems = [
@@ -9,7 +9,32 @@ const navigationItems = [
 ];
 
 export function AppLayout() {
-    const [transactions, setTransactions] = useState(mockTransactions);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            try {
+                const response = await fetch("http://localhost:3001/api/transactions");
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch transactions.");
+                }
+
+                const data: Transaction[] = await response.json();
+
+                setTransactions(data);
+                setError("");
+            } catch (error) {
+                setError("Failed to load transactions.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTransactions();
+    }, []);
 
     return (
         <div className="min-h-screen bg-slate-100 text-slate-900">
@@ -67,7 +92,7 @@ export function AppLayout() {
                     </header>
 
                     <div className="p-5 md:p-8">
-                        <Outlet context={{ transactions, setTransactions }} />
+                        <Outlet context={{ transactions, setTransactions, isLoading, error,  }} />
                     </div>
                 </main>
             </div>

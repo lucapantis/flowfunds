@@ -11,12 +11,14 @@ import type {Transaction, TransactionType} from "../types/transaction";
 type TransactionsContext = {
     transactions: Transaction[];
     setTransactions: Dispatch<SetStateAction<Transaction[]>>;
+    isLoading: boolean;
+    error: string;
 };
 
 type TypeFilter ="all" | TransactionType;
 
 export function TransactionsPage() {
-    const { transactions, setTransactions } = useOutletContext<TransactionsContext>();
+    const { transactions, setTransactions, isLoading, error: fetchError } = useOutletContext<TransactionsContext>();
 
     const [description, setDescription] = useState("");
     const [amount, setAmount] = useState("");
@@ -99,6 +101,14 @@ export function TransactionsPage() {
             return matchesSearch && matchesType && matchesCategory;
 
    })
+
+    if (isLoading) {
+        return <p>Loading transactions...</p>
+    }
+
+    if (fetchError) {
+        return <p>{error}</p>
+    }
 
         return (
             <section>
