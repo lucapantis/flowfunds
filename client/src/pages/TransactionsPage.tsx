@@ -47,7 +47,7 @@ export function TransactionsPage() {
         setCategory("all");
     }
 
-    const handleSubmit: FormEventHandler = (event) => {
+    const handleSubmit: FormEventHandler = async (event) => {
         event.preventDefault();
 
         if(Number(amount) <= 0) {
@@ -57,18 +57,24 @@ export function TransactionsPage() {
 
         setError("");
 
-        const newTransaction: Transaction = {
-            id: crypto.randomUUID(),
-            description,
-            amount: Number(amount),
-            type,
-            date,
-            category,
+        const response = await fetch("http://localhost:3001/api/transactions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                description,
+                amount: Number(amount),
+                type,
+                date,
+                category,
+            })
+        })
 
-        }
+        const createdTransaction: Transaction = await response.json();
 
         setTransactions((currentTransactions) => [
-            newTransaction,
+            createdTransaction,
             ...currentTransactions,
         ])
 
@@ -103,11 +109,21 @@ export function TransactionsPage() {
    })
 
     if (isLoading) {
-        return <p>Loading transactions...</p>
+        return (
+            <section>
+                <p className="text-slate-600">Loading transactions...</p>
+            </section>
+        )
     }
 
     if (fetchError) {
-        return <p>{error}</p>
+        return (
+            <section>
+                <p className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                    {fetchError}
+                </p>
+            </section>
+        );
     }
 
         return (
