@@ -64,6 +64,24 @@ app.post("/api/transactions", (req, res) => {
     return res.status(201).json(newTransaction)
 })
 
+app.delete("/api/transactions/:id", (req, res) => {
+    const {id} = req.params;
+
+    const transactionIndex = transactions.findIndex(
+        (transaction) => transaction.id === id,
+    )
+
+    if (transactionIndex === -1) {
+        return res.status(404).json({
+            message: "Transaction not found",
+        })
+    }
+
+    transactions.splice(transactionIndex, 1);
+
+    return res.status(204).send()
+})
+
 // // starts backend on port 3001
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

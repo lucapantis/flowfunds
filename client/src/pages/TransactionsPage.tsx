@@ -31,7 +31,16 @@ export function TransactionsPage() {
     const [categoryFilter, setCategoryFilter] = useState("all");
 
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
+        const response = await fetch(`http://localhost:3001/api/transactions/${id}`, {
+            method: "DELETE",
+        })
+
+        if (!response.ok) {
+            setError("Failed to delete transaction");
+            return;
+        }
+
         setTransactions((currentTransactions) =>
             currentTransactions.filter((transaction) => transaction.id !== id));
 

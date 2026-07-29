@@ -92,7 +92,12 @@ export function AppLayout() {
                     </header>
 
                     <div className="p-5 md:p-8">
-                        <Outlet context={{ transactions, setTransactions, isLoading, error,  }} />
+                        <Outlet context={{
+                            transactions,
+                            setTransactions,
+                            isLoading,
+                            error,
+                        }} />
                     </div>
                 </main>
             </div>
