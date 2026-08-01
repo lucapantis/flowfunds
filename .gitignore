@@ -1,3 +1,9 @@
 ﻿.idea/
 server/node_modules/
 server/dist/
+server/.env
+server/dev.db
+server/.agents/
+server/.claude/
+server/.windsurf/
+server/skills-lock.json

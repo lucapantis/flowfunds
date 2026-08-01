@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
-import {transactions} from "./data/transactions.js";
+import { prisma } from './prisma.js';
 
 type CreateTransactionBody = {
     description: string;
@@ -25,11 +25,17 @@ app.get("/api/health", (req, res) => {
     })
 })
 
-app.get("/api/transactions", (req, res) => {
-    res.json(transactions);
-})
+app.get("/api/transactions", async (_req, res) => {
+    const transactions = await prisma.transaction.findMany({
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
 
-app.post("/api/transactions", (req, res) => {
+    return res.json(transactions);
+});
+
+app.post("/api/transactions", async (req, res) => {
     const body = req.body as CreateTransactionBody;
 
     if (
@@ -50,37 +56,42 @@ app.post("/api/transactions", (req, res) => {
         })
     }
 
-    const newTransaction = {
-        id: crypto.randomUUID(),
-        description: body.description,
-        category: body.category,
-        amount: body.amount,
-        type: body.type,
-        date: body.date,
-    }
+    const newTransaction = await prisma.transaction.create({
+        data: {
+            description: body.description,
+            category: body.category,
+            amount: body.amount,
+            type: body.type,
+            date: body.date,
+        },
+    });
 
-    transactions.unshift(newTransaction)
-
-    return res.status(201).json(newTransaction)
+    return res.status(201).json(newTransaction);
 })
 
-app.delete("/api/transactions/:id", (req, res) => {
-    const {id} = req.params;
+app.delete("/api/transactions/:id", async (req, res) => {
+    const { id } = req.params;
 
-    const transactionIndex = transactions.findIndex(
-        (transaction) => transaction.id === id,
-    )
+    const existingTransaction = await prisma.transaction.findUnique({
+        where: {
+            id,
+        },
+    });
 
-    if (transactionIndex === -1) {
+    if (!existingTransaction) {
         return res.status(404).json({
-            message: "Transaction not found",
-        })
+            message: "Transaction not found.",
+        });
     }
 
-    transactions.splice(transactionIndex, 1);
+    await prisma.transaction.delete({
+        where: {
+            id,
+        },
+    });
 
-    return res.status(204).send()
-})
+    return res.status(204).send();
+});
 
 // // starts backend on port 3001
 app.listen(PORT, () => {
