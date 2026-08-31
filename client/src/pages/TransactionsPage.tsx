@@ -27,34 +27,35 @@ export function TransactionsPage() {
     const [type, setType] = useState<TransactionType>("expense");
     const [category, setCategory] = useState("");
     const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
     const [categoryFilter, setCategoryFilter] = useState("all");
 
 
     const handleDelete = async (id: string) => {
-        const response = await fetch(apiUrl(`/api/transactions/${id}`), {
-            method: "DELETE",
-        })
+        try {
+            const response = await fetch(apiUrl(`/api/transactions/${id}`), {
+                method: "DELETE",
+            });
 
-        if (!response.ok) {
-            setError("Failed to delete transaction");
-            return;
+            if (!response.ok) {
+                setError("Failed to delete transaction.");
+                return;
+            }
+
+            setError("");
+            setTransactions((currentTransactions) =>
+                currentTransactions.filter((transaction) => transaction.id !== id));
+        } catch {
+            setError("Failed to delete transaction.");
         }
-
-        setTransactions((currentTransactions) =>
-            currentTransactions.filter((transaction) => transaction.id !== id));
-
-        // setTransactions(
-        //   take the current list,
-        //   return a new list that excludes the transaction whose id matches the clicked id
-        // )
     }
 
     const handleClearFilters = () => {
         setSearchTerm("");
         setTypeFilter("all");
-        setCategory("all");
+        setCategoryFilter("all");
     }
 
     const handleSubmit: FormEventHandler = async (event) => {
@@ -66,35 +67,45 @@ export function TransactionsPage() {
         }
 
         setError("");
+        setIsSubmitting(true);
 
-        const response = await fetch(apiUrl("/api/transactions"), {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                description,
-                amount: Number(amount),
-                type,
-                date,
-                category,
-            })
-        })
+        try {
+            const response = await fetch(apiUrl("/api/transactions"), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    description,
+                    amount: Number(amount),
+                    type,
+                    date,
+                    category,
+                })
+            });
 
-        const createdTransaction: Transaction = await response.json();
+            if (!response.ok) {
+                setError("Failed to add transaction. Please try again.");
+                return;
+            }
 
-        setTransactions((currentTransactions) => [
-            createdTransaction,
-            ...currentTransactions,
-        ])
+            const createdTransaction: Transaction = await response.json();
 
-        setDescription("");
-        setAmount("");
-        setType("expense");
-        setDate("");
-        setCategory("");
+            setTransactions((currentTransactions) => [
+                createdTransaction,
+                ...currentTransactions,
+            ]);
 
-
+            setDescription("");
+            setAmount("");
+            setType("expense");
+            setDate("");
+            setCategory("");
+        } catch {
+            setError("Failed to add transaction. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     const categories = [
@@ -121,7 +132,8 @@ export function TransactionsPage() {
     if (isLoading) {
         return (
             <section>
-                <p className="text-slate-600">Loading transactions...</p>
+                <h2 className="text-2xl font-bold">Transactions</h2>
+                <p className="mt-5 text-sm text-slate-500">Loading transactions…</p>
             </section>
         )
     }
@@ -129,7 +141,8 @@ export function TransactionsPage() {
     if (fetchError) {
         return (
             <section>
-                <p className="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                <h2 className="text-2xl font-bold">Transactions</h2>
+                <p className="mt-5 rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-700">
                     {fetchError}
                 </p>
             </section>
@@ -141,20 +154,22 @@ export function TransactionsPage() {
                 <h2 className="text-2xl font-bold">Transactions</h2>
 
                 <div className="mt-5 flex flex-col gap-3 md:flex-row">
-                <div className="flex-1">
-                  <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(event) => setSearchTerm(event.target.value)}
-                      placeholder="Search by description or category"
-                      className="w-full rounded-md border border-slate-300 px-3 py-2"
-                  />
-                </div>
                     <div className="flex-1">
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            placeholder="Search by description or category"
+                            aria-label="Search transactions by description or category"
+                            className="w-full rounded-md border border-slate-300 px-3 py-2"
+                        />
+                    </div>
+                    <div className="flex flex-wrap gap-3">
                         <select
                             value={typeFilter}
                             onChange={(event) => setTypeFilter(event.target.value as TypeFilter)}
-                            className="rounded-md border border-slate-300 px-3 py-2"
+                            aria-label="Filter by type"
+                            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
                         >
                             <option value="all">All</option>
                             <option value="expense">Expense</option>
@@ -163,6 +178,7 @@ export function TransactionsPage() {
                         <select
                             value={categoryFilter}
                             onChange={(event) => setCategoryFilter(event.target.value)}
+                            aria-label="Filter by category"
                             className="rounded-md border border-slate-300 px-3 py-2 text-sm"
                         >
                             <option value="all">All categories</option>
@@ -176,7 +192,7 @@ export function TransactionsPage() {
                         <button
                             type="button"
                             onClick={handleClearFilters}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
                         >
                             Clear filters
                         </button>
@@ -283,7 +299,7 @@ export function TransactionsPage() {
 
             <input
                 id="category"
-                type="category"
+                type="text"
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
                 placeholder="e.g. Food"
@@ -295,9 +311,10 @@ export function TransactionsPage() {
         <div className="mt-5 flex justify-end">
             <button
                 type="submit"
-                className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                disabled={isSubmitting}
+                className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-                + Add transaction
+                {isSubmitting ? "Adding…" : "+ Add transaction"}
             </button>
         </div>
 
@@ -305,9 +322,13 @@ export function TransactionsPage() {
 
                 <div className="mt-6 space-y-3">
                     {transactions.length === 0 ? (
-                        <p>No transactions yet.</p>
+                        <p className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm">
+                            No transactions yet. Add your first one using the form above.
+                        </p>
                     ) : filteredTransactions.length === 0 ? (
-                        <p>No transactions match your search.</p> )
+                        <p className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm">
+                            No transactions match your search.
+                        </p> )
                         :  (filteredTransactions.map((transaction) => (
                         <article
                             key={transaction.id}
@@ -329,7 +350,8 @@ export function TransactionsPage() {
                                 <button
                                     type="button"
                                     onClick={() => handleDelete(transaction.id)}
-                                    className="rounded-md px-3 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50"
+                                    aria-label={`Delete transaction: ${transaction.description}`}
+                                    className="rounded-md px-3 py-1.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
                                 >
                                     Delete
                                 </button>

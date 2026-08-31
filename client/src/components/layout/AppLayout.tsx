@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Transaction } from "../../types/transaction.ts";
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, useLocation } from "react-router";
 import { apiUrl } from "../../lib/api.ts";
 
 const navigationItems = [
@@ -13,6 +13,11 @@ export function AppLayout() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const { pathname } = useLocation();
+    const currentPage = navigationItems.find((item) =>
+        pathname.startsWith(item.to),
+    );
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -60,6 +65,7 @@ export function AppLayout() {
                                 className={({ isActive }) =>
                                     [
                                         "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition",
+                                        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600",
                                         isActive
                                             ? "bg-emerald-50 text-emerald-700"
                                             : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
@@ -71,25 +77,40 @@ export function AppLayout() {
                             </NavLink>
                         ))}
                     </nav>
-
-                    <div className="mt-auto rounded-xl bg-slate-50 p-4">
-                        <p className="text-sm font-semibold">Demo mode</p>
-                        <p className="mt-1 text-xs leading-5 text-slate-500">
-                            For now, we use mock data. We connect them to an API later.
-                        </p>
-                    </div>
                 </aside>
 
                 <main className="min-w-0 flex-1">
-                    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4 md:px-8">
-                        <div>
-                            <p className="text-sm text-slate-500">Welcome Back</p>
-                            <h1 className="text-lg font-bold">Vlad</h1>
+                    <header className="border-b border-slate-200 bg-white px-5 py-4 md:px-8">
+                        <div className="flex items-center gap-3 md:hidden">
+                            <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-600 text-sm font-bold text-white">
+                                F
+                            </div>
+                            <span className="text-base font-bold">FlowFunds</span>
                         </div>
 
-                        <div className="grid h-10 w-10 place-items-center rounded-full bg-slate-900 text-sm font-bold text-white">
-                            VP
-                        </div>
+                        <h1 className="hidden text-lg font-bold md:block">
+                            {currentPage?.label ?? "FlowFunds"}
+                        </h1>
+
+                        <nav className="mt-3 flex gap-1 md:hidden">
+                            {navigationItems.map((item) => (
+                                <NavLink
+                                    key={item.to}
+                                    to={item.to}
+                                    className={({ isActive }) =>
+                                        [
+                                            "rounded-lg px-3 py-2 text-sm font-medium transition",
+                                            "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600",
+                                            isActive
+                                                ? "bg-emerald-50 text-emerald-700"
+                                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                                        ].join(" ")
+                                    }
+                                >
+                                    {item.label}
+                                </NavLink>
+                            ))}
+                        </nav>
                     </header>
 
                     <div className="p-5 md:p-8">

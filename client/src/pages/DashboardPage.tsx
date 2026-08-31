@@ -1,5 +1,7 @@
 import { Link, useOutletContext } from "react-router";
-import { type Transaction} from "../types/transaction.ts";
+import { type Transaction } from "../types/transaction.ts";
+
+const RECENT_TRANSACTIONS_LIMIT = 5;
 
 function formatCurrency(value: number) {
     return new Intl.NumberFormat("ro-RO", {
@@ -11,10 +13,12 @@ function formatCurrency(value: number) {
 
 type DashboardContext = {
     transactions: Transaction[];
-}
+    isLoading: boolean;
+    error: string;
+};
 
 export function DashboardPage() {
- const { transactions } = useOutletContext<DashboardContext>();
+    const { transactions, isLoading, error } = useOutletContext<DashboardContext>();
 
     const totalIncome = transactions
         .filter((transaction) => transaction.type === "income")
@@ -26,19 +30,21 @@ export function DashboardPage() {
 
     const balance = totalIncome - totalExpenses;
 
+    const recentTransactions = transactions.slice(0, RECENT_TRANSACTIONS_LIMIT);
+
     const summaryCards = [
         {
-            label: "Monthly Income",
+            label: "Total income",
             value: formatCurrency(totalIncome),
             description: "Total income sources",
         },
         {
-            label: "Monthly Expenses",
+            label: "Total expenses",
             value: formatCurrency(totalExpenses),
             description: "Tracked expenses",
         },
         {
-            label: "Available Balance",
+            label: "Available balance",
             value: formatCurrency(balance),
             description: "Income minus expenses",
         },
@@ -48,9 +54,7 @@ export function DashboardPage() {
         <section>
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
-                    <p className="text-sm font-medium text-emerald-600">July 2026</p>
-
-                    <h2 className="mt-1 text-3xl font-bold tracking-tight">
+                    <h2 className="text-3xl font-bold tracking-tight">
                         Financial Overview
                     </h2>
 
@@ -59,9 +63,12 @@ export function DashboardPage() {
                     </p>
                 </div>
 
-                <button className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                <Link
+                    to="/transactions"
+                    className="inline-flex shrink-0 items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                >
                     + Add transaction
-                </button>
+                </Link>
             </div>
 
             <div className="mt-8 grid gap-5 md:grid-cols-3">
@@ -72,7 +79,9 @@ export function DashboardPage() {
                     >
                         <p className="text-sm font-medium text-slate-500">{card.label}</p>
 
-                        <p className="mt-3 text-2xl font-bold">{card.value}</p>
+                        <p className="mt-3 text-2xl font-bold">
+                            {isLoading || error ? "—" : card.value}
+                        </p>
 
                         <p className="mt-2 text-xs text-slate-400">
                             {card.description}
@@ -81,26 +90,36 @@ export function DashboardPage() {
                 ))}
             </div>
 
-            <div className="mt-8 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="font-bold">Recent Transactions</h3>
+            <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h3 className="font-bold">Recent Transactions</h3>
 
-                            <p className="mt-1 text-sm text-slate-500">
-                                Your latest income and expenses.
-                            </p>
-                        </div>
-                        <Link
-                            to="/transactions"
-                            className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
-                        >
-                         View all
-                        </Link>
-             </div>
+                        <p className="mt-1 text-sm text-slate-500">
+                            Your latest income and expenses.
+                        </p>
+                    </div>
+                    <Link
+                        to="/transactions"
+                        className="rounded text-sm font-medium text-emerald-600 hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                    >
+                        View all
+                    </Link>
+                </div>
 
+                {isLoading ? (
+                    <p className="mt-6 text-sm text-slate-500">Loading transactions…</p>
+                ) : error ? (
+                    <p className="mt-6 rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                        {error}
+                    </p>
+                ) : recentTransactions.length === 0 ? (
+                    <p className="mt-6 text-sm text-slate-500">
+                        No transactions yet. Add your first one from the Transactions page.
+                    </p>
+                ) : (
                     <div className="mt-6 divide-y divide-slate-100">
-                        {transactions.map((transaction) => {
+                        {recentTransactions.map((transaction) => {
                             const isIncome = transaction.type === "income";
 
                             return (
@@ -144,34 +163,8 @@ export function DashboardPage() {
                             );
                         })}
                     </div>
-                </section>
-
-                <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <h3 className="font-bold">Monthly Goal</h3>
-
-                    <p className="mt-2 text-sm leading-6 text-slate-500">
-                        Keep expenses under 4.000 RON this month.
-                    </p>
-
-                    <div className="mt-6">
-                        <div className="mb-2 flex justify-between text-sm">
-                            <span className="font-medium">Spent</span>
-
-                            <span className="text-slate-500">
-                {formatCurrency(totalExpenses)} / 4.000 RON
-              </span>
-                        </div>
-
-                        <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-                            <div className="h-full w-[7%] rounded-full bg-emerald-600" />
-                        </div>
-
-                        <p className="mt-3 text-xs text-slate-500">
-                            Dynamic budgets and progress tracking coming soon.
-                        </p>
-                    </div>
-                </aside>
-            </div>
+                )}
+            </section>
         </section>
     );
 }
