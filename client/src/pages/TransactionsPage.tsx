@@ -6,6 +6,7 @@ import {
     useState,
   } from "react";
 import type {Transaction, TransactionType} from "../types/transaction";
+import { apiUrl } from "../lib/api";
 
 
 type TransactionsContext = {
@@ -32,7 +33,7 @@ export function TransactionsPage() {
 
 
     const handleDelete = async (id: string) => {
-        const response = await fetch(`http://localhost:3001/api/transactions/${id}`, {
+        const response = await fetch(apiUrl(`/api/transactions/${id}`), {
             method: "DELETE",
         })
 
@@ -66,7 +67,7 @@ export function TransactionsPage() {
 
         setError("");
 
-        const response = await fetch("http://localhost:3001/api/transactions", {
+        const response = await fetch(apiUrl("/api/transactions"), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
