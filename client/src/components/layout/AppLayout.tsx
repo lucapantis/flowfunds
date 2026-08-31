@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Transaction } from "../../types/transaction.ts";
 import { NavLink, Outlet } from "react-router";
+import { apiUrl } from "../../lib/api.ts";
 
 const navigationItems = [
     { to: "/dashboard", label: "Dashboard", icon: "▦" },
@@ -16,7 +17,7 @@ export function AppLayout() {
     useEffect(() => {
         const fetchTransactions = async () => {
             try {
-                const response = await fetch("http://localhost:3001/api/transactions");
+                const response = await fetch(apiUrl("/api/transactions"));
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch transactions.");
@@ -26,7 +27,7 @@ export function AppLayout() {
 
                 setTransactions(data);
                 setError("");
-            } catch (error) {
+            } catch {
                 setError("Failed to load transactions.");
             } finally {
                 setIsLoading(false);

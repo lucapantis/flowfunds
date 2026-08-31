@@ -1,9 +1,20 @@
-﻿.idea/
+.idea/
 server/node_modules/
 server/dist/
-server/.env
-server/dev.db
 server/.agents/
 server/.claude/
 server/.windsurf/
 server/skills-lock.json
+
+# Environment files — never commit real credentials.
+# `.env.example` files are intentionally kept.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local SQLite database files (production uses PostgreSQL).
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3

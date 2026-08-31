@@ -1,5 +1,13 @@
 node_modules
-# Keep environment variables out of version control
-.env
+dist
 
+# Keep environment variables out of version control (keep .env.example)
+.env
+.env.*
+!.env.example
+
+# Prisma generated client / local databases
 /src/generated/prisma
+*.db
+*.db-journal
+prisma/*.db
